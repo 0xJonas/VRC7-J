@@ -1,0 +1,38 @@
+<project
+	name="VRC7-J"
+	default="build"
+	basedir="."
+>
+	<property name="srcDir" location="src"/>
+	<property name="binDir" location="bin"/>
+	<property name="jarFile" value="VRC7-J.jar"/>
+	<target name="build">
+		<mkdir dir="${binDir}"/>
+		
+		<javac
+			srcdir="${srcDir}"
+			destdir="${binDir}"
+			debug="true"
+			includeAntRuntime="true"
+			source="1.8"
+			target="1.8"
+		/>
+	</target>
+	<target name="package" depends="build">
+		<copy file="vrc7.vsb" todir="${binDir}/de/delphi/vrc7j" overwrite="true"/>
+		<jar
+			destfile="${jarFile}"
+			basedir="${binDir}"
+		>
+			<manifest>
+				<attribute name="Main-class" value="de.delphi.vrc7j.ParameterParser"/>
+			</manifest>
+			<service type="javax.sound.midi.spi.MidiDeviceProvider" provider="de.delphi.vrc7j.VRC7DeviceProvider"/>
+			<service type="javax.sound.midi.spi.SoundbankReader" provider="de.delphi.vrc7j.VRC7SoundbankReader"/>
+		</jar>
+	</target>
+	<target name="clean">
+		<delete dir="${binDir}"/>
+		<delete file="${jarFile}"/>
+	</target>
+</project>

@@ -1,0 +1,125 @@
+
+* {
+	std-background: #000000;
+	std-text: #ffffff;
+	std-border-color: #48CDE2;
+	std-hover: #00404D;
+	std-slider: #B53120;
+	std-slider-hover: #FF8170;
+}
+
+#toolBar, #controlPane, #soundbankTreeView, #modulationVBox, #mainMenu{
+	-fx-border-image-source: url(../img/border-inner.png);
+	-fx-border-image-slice: 25%;
+	-fx-border-image-width: 8px;
+	-fx-background-color: std-background;
+}
+
+.label, .button, .text-field, .titled-pane > .title > .text{
+	-fx-background-color: std-background;
+	-fx-font-family: monospace;
+	-fx-font-weight: bold;
+	-fx-text-fill: std-text;
+	-fx-font-size: 12pt;
+}
+
+.titled-pane > .content, .titled-pane > .title{
+	-fx-background-color: std-background;
+}
+
+/*Checkbox*/
+
+.check-box > .box{
+	-fx-background: null;
+	-fx-background-color: std-background;
+	-fx-border-image-source: url(../img/border-small.png);
+	-fx-border-image-slice: 25%;
+	-fx-border-image-width: 4px;
+	-fx-padding: 0px;
+}
+
+.check-box:selected > .box > .mark{
+	-fx-shape: "";
+	-fx-background-image: url(../img/checkbox-mark.png);
+	-fx-background-repeat: stretch;
+	-fx-background-size: cover;
+	-fx-background-insets: 0px;
+}
+
+/*Menu*/
+
+.context-menu{
+	-fx-padding: 0px;
+	-fx-background: null;
+	-fx-background-color: std-background;
+	-fx-border-image-source: url(../img/border-small.png);
+	-fx-border-image-slice: 25%;
+	-fx-border-image-width: 4px;
+}
+
+.menu-item:focused {
+	-fx-background-color: std-hover;
+}
+
+.menu-item > .label{
+	-fx-graphic: url(../img/menu-empty.png);
+}
+
+.menu-item:focused > .label{
+	-fx-background-color: std-hover;
+	-fx-graphic: url(../img/menu-cursor.png);
+}
+
+/*Slider*/
+
+.slider > .thumb{
+	-fx-background: null;
+	-fx-background-color: std-slider;
+	-fx-background-image: url(../img/slider-thumb.png);
+	-fx-background-repeat: stretch;
+	-fx-background-size: cover;
+}
+
+.slider > .track{
+	-fx-background: null;
+	-fx-background-image: url(../img/slider-track.png);
+	-fx-background-repeat: repeat;
+}
+
+.slider > .axis{
+	-fx-minor-tick-length: 2px;
+	-fx-tick-length: 4px;
+}
+
+.slider:pressed > .thumb{
+	-fx-background: null;
+	-fx-background-color: std-slider-hover;
+}
+
+.slider:vertical > .thumb {
+	-fx-background: null;
+	-fx-background-image: url(../img/slider-thumb-v.png);
+	-fx-background-repeat: stretch;
+	-fx-background-size: cover;
+}
+.slider:vertical > .track {
+	-fx-background: null;
+	-fx-background-image: url(../img/slider-track-v.png);
+	-fx-background-repeat: repeat;
+}
+
+.slider > .axis > .axis-tick-mark, .slider > .axis > .axis-minor-tick-mark{
+	-fx-stroke: #fff;
+    -fx-stroke-width: 2px;
+	-fx-translate-x: -1.5;
+	-fx-translate-y: -1.5;
+}
+
+/*Separator*/
+
+.separator{
+	-fx-background: none;
+	-fx-background-image: url(../img/separator.png);
+	-fx-background-size: contain;
+	-fx-min-height: 4px;
+}

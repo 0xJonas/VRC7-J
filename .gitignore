@@ -1,0 +1,8 @@
+misc
+bin
+*.jar
+TODO.txt
+.externalToolBuilders
+.settings
+.project
+.classpath
