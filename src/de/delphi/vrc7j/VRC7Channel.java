@@ -45,7 +45,7 @@ public class VRC7Channel implements MidiChannel {
 	private boolean sustain=false;
 	
 	//VRC7 stuff
-	private Envelope2 modEnv,carEnv;
+	private Envelope modEnv,carEnv;
 	
 	private Operator modulator,carrier;
 	
@@ -66,8 +66,8 @@ public class VRC7Channel implements MidiChannel {
 		this.channelNum=channelNum;
 		modulator=new Operator();
 		carrier=new Operator();
-		modEnv=new Envelope2();
-		carEnv=new Envelope2();
+		modEnv=new Envelope();
+		carEnv=new Envelope();
 	}
 	
 	public int getChannelNumber() {
@@ -86,7 +86,7 @@ public class VRC7Channel implements MidiChannel {
 	}
 	
 	public boolean isAudible() {
-		return carEnv.getState()!=Envelope.IDLE;
+		return carEnv.getState()!=EnvelopeAlt.IDLE;
 	}
 	
 	/*package*/ int fetchSample() {
@@ -122,7 +122,7 @@ public class VRC7Channel implements MidiChannel {
 		
 		//Get modulator value.
 		int modValue=modulator.fetchSample(modFreq,modVib, modAmp);
-		if(modEnv.getState()==Envelope.IDLE)
+		if(modEnv.getState()==EnvelopeAlt.IDLE)
 			modValue=0;
 		modPrev=modValue;
 		
@@ -150,7 +150,7 @@ public class VRC7Channel implements MidiChannel {
 		
 		//Get carrier value
 		int carValue=carrier.fetchSample(carFreq, carVib, carAmp);
-		if(carEnv.getState()==Envelope.IDLE)
+		if(carEnv.getState()==EnvelopeAlt.IDLE)
 			carValue=0;
 
 		return carValue>>5;
