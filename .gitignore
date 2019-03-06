@@ -1,6 +1,7 @@
 misc
 bin
 *.jar
+*.lnk
 TODO.txt
 .externalToolBuilders
 .settings

@@ -36,6 +36,8 @@ package de.delphi.vrc7j;
 	
 	private boolean sustainNote;
 	
+	private boolean skipAttack=false;
+	
 	private int state=IDLE;
 	
 	public Envelope() {
@@ -60,6 +62,8 @@ package de.delphi.vrc7j;
 		
 		int rate=Math.min(attackRate*4+ksr,63);
 		if(rate>=0x3c) {
+			skipAttack=true;
+		}else if(rate>=0x38) {				//yes, 0x38
 			attackInc=INCREMENTS[4];
 			attackShift=0;
 		}else if(attackRate==0){
@@ -67,7 +71,7 @@ package de.delphi.vrc7j;
 			attackShift=20;
 		}else {
 			attackInc=INCREMENTS[rate & 3];
-			attackShift=((0x3f ^ rate)>>2)-1;
+			attackShift=((0x3f ^ rate)>>2)-2;	//yes, 2!
 		}
 				
 		rate=Math.min(decayRate*4+ksr,63);
@@ -105,7 +109,10 @@ package de.delphi.vrc7j;
 	
 	public void start() {
 		//Reset envelope parameters
-		setState(ATTACK);
+		if(!skipAttack) 
+			setState(ATTACK);
+		else
+			setState(DECAY);
 		output=0;
 	}
 	
@@ -176,7 +183,7 @@ package de.delphi.vrc7j;
 		if((cycleCounter & (1<<currentShift)-1)==0) {
 			int inc=currentInc[(cycleCounter>>currentShift) & 0b111];
 			if(state==ATTACK) {
-				output+=inc*(64-output)/2;
+				output+=inc*(64-output)/4;
 			}else if(state!=IDLE){
 				output+=inc;
 			}

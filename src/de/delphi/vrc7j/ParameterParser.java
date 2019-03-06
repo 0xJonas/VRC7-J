@@ -226,20 +226,6 @@ import javax.sound.midi.Soundbank;
 			}case "tuning":{
 				tuning=Float.parseFloat(value);
 				break;
-			}case "midiinput":{
-				MidiDevice.Info[] devices=getSortedDevices();
-				int device=Integer.parseInt(value)-1;
-				
-				//Check if value is in the correct range
-				if(device>=0 && device<devices.length) {
-					midiIn=MidiSystem.getMidiDevice(devices[device]);
-
-					/*if(midiIn.getMaxTransmitters()==0) {
-						System.out.println("Selected Midi device does not send midi messages: "+devices[device].getName());
-						throw new IllegalArgumentException();
-					}*/
-				}
-				break;
 			}case "polychannel":{
 				polyChannel=Integer.parseInt(value);
 				if(polyChannel<0 || polyChannel>15) {
@@ -255,10 +241,6 @@ import javax.sound.midi.Soundbank;
 		}catch(NumberFormatException e) {
 			System.out.println("Bad value for "+paramName+": "+value);
 			throw new IllegalArgumentException();
-		} 
-		catch (MidiUnavailableException e) {
-			System.out.println("Error loading Midi Device");
-			e.printStackTrace();
 		}
 	}
 	

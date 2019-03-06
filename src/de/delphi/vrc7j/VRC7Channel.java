@@ -86,7 +86,7 @@ public class VRC7Channel implements MidiChannel {
 	}
 	
 	public boolean isAudible() {
-		return carEnv.getState()!=EnvelopeAlt.IDLE;
+		return carEnv.getState()!=Envelope.IDLE;
 	}
 	
 	/*package*/ int fetchSample() {
@@ -122,7 +122,7 @@ public class VRC7Channel implements MidiChannel {
 		
 		//Get modulator value.
 		int modValue=modulator.fetchSample(modFreq,modVib, modAmp);
-		if(modEnv.getState()==EnvelopeAlt.IDLE)
+		if(modEnv.getState()==Envelope.IDLE)
 			modValue=0;
 		modPrev=modValue;
 		
@@ -150,7 +150,7 @@ public class VRC7Channel implements MidiChannel {
 		
 		//Get carrier value
 		int carValue=carrier.fetchSample(carFreq, carVib, carAmp);
-		if(carEnv.getState()==EnvelopeAlt.IDLE)
+		if(carEnv.getState()==Envelope.IDLE)
 			carValue=0;
 
 		return carValue>>5;

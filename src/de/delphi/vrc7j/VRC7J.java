@@ -56,8 +56,6 @@ public class VRC7J implements Synthesizer {
 	
 	private long clock=0,startClock=0;
 	
-	private double clockFloat=0.0;
-	
 	private long messageCounter=0;
 	
 	private PriorityBlockingQueue<TimeStampedMessage> pendingMessages=new PriorityBlockingQueue<>();
@@ -79,6 +77,10 @@ public class VRC7J implements Synthesizer {
 	private Thread synthThread;
 	
 	private SourceDataLine outLine;
+	
+	private Resampler resampler;
+	
+	private DigitalFilter vrc7Hybrid;
 	
 	private byte[] buffer;
 	
@@ -106,6 +108,10 @@ public class VRC7J implements Synthesizer {
 			channels[i]=new VRC7Channel(this,i);
 			channels[i].programChange(0,0);
 		}
+		
+		double alpha=2/7896.760651*Operator.OPERATOR_CLOCK;
+		vrc7Hybrid=new DigitalFilter(new double[]{1/(1+alpha),1/(1+alpha)},new double[]{-(1-alpha)/(1+alpha)});
+		//vrc7Hybrid=new DigitalFilter(new double[]{1.0},new double[0]);
 	}
 	
 	/*package*/ void handleMessage(MidiMessage message,long timeStamp) {
@@ -265,11 +271,12 @@ public class VRC7J implements Synthesizer {
 			}
 			
 			int resampleOrder=3;
-			Resampler res=new Resampler(resampleOrder,Operator.OPERATOR_CLOCK,sampleRate);
+			resampler=new Resampler(resampleOrder,Operator.OPERATOR_CLOCK,sampleRate);
 			
 			//prefill buffer of the resampler
 			for(int i=0;i<resampleOrder-1;i++) {
-				res.prefill(fetchSample());
+				vrc7Hybrid.addSample(fetchSample());
+				resampler.prefill(vrc7Hybrid.fetchSample());
 			}
 			
 			while(!Thread.currentThread().isInterrupted()) {
@@ -280,14 +287,15 @@ public class VRC7J implements Synthesizer {
 				
 				//Fill buffer with as many samples as needed
 				while(vrc7Clock<cyclesPerSample) {
-					res.addSample(fetchSample());
+					vrc7Hybrid.addSample(fetchSample());
+					resampler.addSample(vrc7Hybrid.fetchSample());
 					vrc7Clock+=1.0;
 				}
 				vrc7Clock-=cyclesPerSample;
 				
 				clock+=(int) 1000000000.0/sampleRate;
 				
-				int sample=(short) (res.fetchSample()*volume/2.0);
+				int sample=(short) (resampler.fetchSample()*volume/2.0);
 				buffer[bufferPointer++]=(byte) (sample>>8);
 				buffer[bufferPointer++]=(byte) (sample & 0xff);
 				
