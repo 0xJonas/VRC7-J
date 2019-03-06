@@ -28,8 +28,11 @@ package de.delphi.vrc7j;
 		for(int i=0;i<iirCoeff.length;i++) {
 			val+=iirCoeff[i]*outputBuffer[(outputPointer-i+outputBuffer.length) % outputBuffer.length];
 		}
-		outputBuffer[outputPointer]=val;
-		outputPointer=(outputPointer+1) % outputBuffer.length;
+		
+		if(outputBuffer.length>0) {
+			outputBuffer[outputPointer]=val;
+			outputPointer=(outputPointer+1) % outputBuffer.length;
+		}
 		return (int) Math.round(val);
 	}
 }

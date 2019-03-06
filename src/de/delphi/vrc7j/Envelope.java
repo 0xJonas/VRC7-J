@@ -71,7 +71,7 @@ package de.delphi.vrc7j;
 			attackShift=20;
 		}else {
 			attackInc=INCREMENTS[rate & 3];
-			attackShift=((0x3f ^ rate)>>2)-2;	//yes, 2!
+			attackShift=((0x3f ^ rate)>>2)-2;	//yes, 2
 		}
 				
 		rate=Math.min(decayRate*4+ksr,63);
@@ -183,7 +183,7 @@ package de.delphi.vrc7j;
 		if((cycleCounter & (1<<currentShift)-1)==0) {
 			int inc=currentInc[(cycleCounter>>currentShift) & 0b111];
 			if(state==ATTACK) {
-				output+=inc*(64-output)/4;
+				output+=inc*((64-output)/4+1);
 			}else if(state!=IDLE){
 				output+=inc;
 			}

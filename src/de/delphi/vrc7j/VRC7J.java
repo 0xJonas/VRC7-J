@@ -109,7 +109,7 @@ public class VRC7J implements Synthesizer {
 			channels[i].programChange(0,0);
 		}
 		
-		double alpha=2/7896.760651*Operator.OPERATOR_CLOCK;
+		double alpha=2/14427.66871*Operator.OPERATOR_CLOCK;
 		vrc7Hybrid=new DigitalFilter(new double[]{1/(1+alpha),1/(1+alpha)},new double[]{-(1-alpha)/(1+alpha)});
 		//vrc7Hybrid=new DigitalFilter(new double[]{1.0},new double[0]);
 	}
