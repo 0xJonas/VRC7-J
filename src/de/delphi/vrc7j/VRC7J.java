@@ -80,7 +80,7 @@ public class VRC7J implements Synthesizer {
 	
 	private Resampler resampler;
 	
-	private DigitalFilter vrc7Hybrid;
+	private DigitalFilter vrc7Hybrid,famicomFilter;
 	
 	private byte[] buffer;
 	
@@ -109,9 +109,14 @@ public class VRC7J implements Synthesizer {
 			channels[i].programChange(0,0);
 		}
 		
-		double alpha=2/14427.66871*Operator.OPERATOR_CLOCK;
+		//Low-pass at 2289.3Hz
+		double alpha=2.0/14427.66871*Operator.OPERATOR_CLOCK;
 		vrc7Hybrid=new DigitalFilter(new double[]{1/(1+alpha),1/(1+alpha)},new double[]{-(1-alpha)/(1+alpha)});
-		//vrc7Hybrid=new DigitalFilter(new double[]{1.0},new double[0]);
+		
+		//High-pass at 8Hz
+		alpha=2.0/16/Math.PI;
+		double beta=1.0/Operator.OPERATOR_CLOCK;
+		famicomFilter=new DigitalFilter(new double[] {alpha/(alpha+beta),-alpha/(alpha+beta)},new double[] {-(beta-alpha)/(beta+alpha)});
 	}
 	
 	/*package*/ void handleMessage(MidiMessage message,long timeStamp) {
@@ -274,10 +279,10 @@ public class VRC7J implements Synthesizer {
 			resampler=new Resampler(resampleOrder,Operator.OPERATOR_CLOCK,sampleRate);
 			
 			//prefill buffer of the resampler
-			for(int i=0;i<resampleOrder-1;i++) {
+			/*for(int i=0;i<resampleOrder-1;i++) {
 				vrc7Hybrid.addSample(fetchSample());
 				resampler.prefill(vrc7Hybrid.fetchSample());
-			}
+			}*/
 			
 			while(!Thread.currentThread().isInterrupted()) {
 				//Check for midi messages
@@ -288,7 +293,8 @@ public class VRC7J implements Synthesizer {
 				//Fill buffer with as many samples as needed
 				while(vrc7Clock<cyclesPerSample) {
 					vrc7Hybrid.addSample(fetchSample());
-					resampler.addSample(vrc7Hybrid.fetchSample());
+					famicomFilter.addSample(vrc7Hybrid.fetchSample());
+					resampler.addSample(famicomFilter.fetchSample());
 					vrc7Clock+=1.0;
 				}
 				vrc7Clock-=cyclesPerSample;

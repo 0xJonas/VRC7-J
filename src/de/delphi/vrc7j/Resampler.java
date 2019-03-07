@@ -22,6 +22,7 @@ package de.delphi.vrc7j;
 		this.bufferLength=order*2+1;
 		prevSamples=new int[bufferLength];
 		step=sourceRate/targetRate;
+		samplePointer=order-1;
 		x=0.0;
 	}
 	
@@ -29,15 +30,6 @@ package de.delphi.vrc7j;
 		prevSamples[samplePointer]=sample;
 		samplePointer=(samplePointer+1) % bufferLength;
 		x-=1.0;
-	}
-	
-	/**
-	 * Same as addSample, but without ensures that x is 0.
-	 * @param sample
-	 */
-	public void prefill(int sample) {
-		addSample(sample);
-		x=0.0;
 	}
 	
 	private double sinc(double x) {
