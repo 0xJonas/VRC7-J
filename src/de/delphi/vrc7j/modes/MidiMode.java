@@ -21,6 +21,7 @@ public abstract class MidiMode {
 		if(!(message instanceof ShortMessage))
 			return;
 		ShortMessage smsg=(ShortMessage) message;
+		
 		int status=smsg.getCommand();
 		int channel=smsg.getChannel();
 		byte[] data=message.getMessage();

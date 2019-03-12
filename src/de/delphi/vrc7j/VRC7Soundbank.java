@@ -36,6 +36,8 @@ public class VRC7Soundbank implements Soundbank {
 		return ins;
 	}
 	
+	//TODO removeInstrument()
+	
 	public void setName(String name) {
 		if(name==null)
 			throw new NullPointerException("Name must not be null.");

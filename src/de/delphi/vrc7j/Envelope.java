@@ -63,13 +63,16 @@ package de.delphi.vrc7j;
 		int rate=Math.min(attackRate*4+ksr,63);
 		if(rate>=0x3c) {
 			skipAttack=true;
-		}else if(rate>=0x38) {				//yes, 0x38
+		}else if(rate>=0x38) {				//TODO
+			skipAttack=false;
 			attackInc=INCREMENTS[4];
 			attackShift=0;
 		}else if(attackRate==0){
+			skipAttack=false;
 			attackInc=INCREMENTS[5];
 			attackShift=20;
 		}else {
+			skipAttack=false;
 			attackInc=INCREMENTS[rate & 3];
 			attackShift=((0x3f ^ rate)>>2)-2;	//yes, 2
 		}

@@ -31,7 +31,7 @@ public class VRC7Channel implements MidiChannel {
 	private int note,velocity;
 	
 	//Only used for get methods
-	private int pressure=0;
+	private int pressure=100;
 		
 	private int program=0;
 
@@ -62,6 +62,7 @@ public class VRC7Channel implements MidiChannel {
 	private int fNum,octave;
 	
 	/*pacakge*/ VRC7Channel(VRC7J synth,int channelNum){
+		resetAllControllers();
 		this.synth=synth;
 		this.channelNum=channelNum;
 		modulator=new Operator();
@@ -413,7 +414,7 @@ public class VRC7Channel implements MidiChannel {
 	@Override
 	public synchronized void resetAllControllers() {
 		bank=0;
-		channelVolume=0;
+		channelVolume=0x7f;
 		sustain=false;
 	}
 
