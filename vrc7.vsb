@@ -2,15 +2,14 @@
 	<meta>
 		<name>Konami VRCVII</name>
 		<version>1.0</version>
-		<author>Konami (original instruments), NESDev community (decoding the patches), Delphi1024 (.vsb file)</author>
+		<author>Konami (original instruments), NukeYKT (finding the patch data)</author>
 		<description>This soundbank contains the build-in instruments of the Konami VRC7 chip, a derivative of the YM2413.</description>
 	</meta>
 	<instruments>
 		<VRC7Instrument>
-			<!--LP: 03 21 0c 06 e8 e1 32 25-->
-			<!--03 21 05 06 B8 81 42 27-->
+			<!--03 21 05 06 E8 81 42 27-->
 			<meta>
-				<name>Bagpipe</name>
+				<name>Buzz Bell</name>
 				<patch>0</patch>
 				<bank>0</bank>
 			</meta>
@@ -21,7 +20,7 @@
 				rectify="false"
 				tremolo="false"
 				vibrato="false"
-				attack="11"
+				attack="14"
 				decay="8"
 				sustain="4"
 				release="2"
@@ -44,7 +43,7 @@
 			/>
 		</VRC7Instrument>
 		<VRC7Instrument>
-			<!--13 41 13 0D D8 D6 23 12-->
+			<!--13 41 14 0D D8 F6 23 12-->
 			<meta>
 				<name>Guitar</name>
 				<patch>1</patch>
@@ -53,7 +52,7 @@
 			<Modulator
 				mult="3"
 				feedback="5"
-				index="19"
+				index="20"
 				rectify="true"
 				tremolo="false"
 				vibrato="false"
@@ -70,7 +69,7 @@
 				rectify="false"
 				tremolo="false"
 				vibrato="true"
-				attack="13"
+				attack="15"
 				decay="6"
 				sustain="1"
 				release="2"
@@ -80,7 +79,7 @@
 			/>
 		</VRC7Instrument>
 		<VRC7Instrument>
-			<!--31 11 08 08 FA 9A 22 02-->
+			<!--11 11 08 08 FA B2 20 12-->
 			<meta>
 				<name>Piano</name>
 				<patch>2</patch>
@@ -96,8 +95,8 @@
 				attack="15"
 				decay="10"
 				sustain="2"
-				release="2"
-				sustained="true"
+				release="0"
+				sustained="false"
 				keyScaleRate="true"
 				keyScaleLevel="0"
 			/>
@@ -106,9 +105,9 @@
 				rectify="false"
 				tremolo="false"
 				vibrato="false"
-				attack="9"
+				attack="11"
 				decay="10"
-				sustain="0"
+				sustain="1"
 				release="2"
 				sustained="false"
 				keyScaleRate="true"
@@ -116,7 +115,7 @@
 			/>
 		</VRC7Instrument>
 		<VRC7Instrument>
-			<!--31 61 18 07 78 64 30 27-->
+			<!--31 61 0C 07 A8 64 61 27-->
 			<meta>
 				<name>Flute</name>
 				<patch>3</patch>
@@ -125,14 +124,14 @@
 			<Modulator
 				mult="1"
 				feedback="7"
-				index="24"
+				index="12"
 				rectify=""
 				tremolo="false"
 				vibrato="false"
-				attack="7"
+				attack="10"
 				decay="8"
-				sustain="3"
-				release="0"
+				sustain="6"
+				release="1"
 				sustained="true"
 				keyScaleRate="true"
 				keyScaleLevel="0"
@@ -152,8 +151,7 @@
 			/>
 		</VRC7Instrument>
 		<VRC7Instrument>
-			<!--LP: 02 01 12 03 E2 81 10 11-->
-			<!--22 21 1E 06 F0 76 08 28-->
+			<!--32 21 1E 06 E1 76 01 28-->
 			<meta>
 				<name>Clarinet</name>
 				<patch>4</patch>
@@ -166,12 +164,12 @@
 				rectify="false"
 				tremolo="false"
 				vibrato="false"
-				attack="15"
-				decay="0"
+				attack="14"
+				decay="1"
 				sustain="0"
-				release="8"
+				release="1"
 				sustained="true"
-				keyScaleRate="false"
+				keyScaleRate="true"
 				keyScaleLevel="0"
 			/>
 			<Carrier
@@ -189,8 +187,7 @@
 			/>
 		</VRC7Instrument>
 		<VRC7Instrument>
-			<!--LP: 02 01 06 00 A3 E2 F4 F4-->
-			<!--	02 01 06 00 F0 F2 03 F5-->
+			<!--02 01 06 00 A3 E2 F4 F4-->
 			<meta>
 				<name>Telephone</name>
 				<patch>5</patch>
@@ -203,10 +200,10 @@
 				rectify="false"
 				tremolo="false"
 				vibrato="false"
-				attack="15"
-				decay="0"
-				sustain="0"
-				release="3"
+				attack="10"
+				decay="3"
+				sustain="15"
+				release="4"
 				sustained="false"
 				keyScaleRate="false"
 				keyScaleLevel="0"
@@ -216,18 +213,17 @@
 				rectify="false"
 				tremolo="false"
 				vibrato="false"
-				attack="15"
+				attack="14"
 				decay="2"
 				sustain="15"
-				release="5"
+				release="4"
 				sustained="false"
 				keyScaleRate="false"
 				keyScaleLevel="0"
 			/>
 		</VRC7Instrument>
 		<VRC7Instrument>
-			<!--LP: 21 61 1b 07 93 81 12 06-->
-			<!--21 61 1D 07 82 81 16 07-->
+			<!--21 61 1D 07 82 81 11 07-->
 			<meta>
 				<name>Trumpet</name>
 				<patch>6</patch>
@@ -243,7 +239,7 @@
 				attack="8"
 				decay="2"
 				sustain="1"
-				release="6"
+				release="1"
 				sustained="true"
 				keyScaleRate="false"
 				keyScaleLevel="0"
@@ -263,7 +259,7 @@
 			/>
 		</VRC7Instrument>
 		<VRC7Instrument>
-			<!--23 21 1A 17 CF 72 25 17-->
+			<!--23 21 22 17 A2 72 01 17-->
 			<meta>
 				<name>Sax</name>
 				<patch>7</patch>
@@ -272,14 +268,14 @@
 			<Modulator
 				mult="3"
 				feedback="7"
-				index="26"
+				index="34"
 				rectify="false"
 				tremolo="false"
 				vibrato="false"
-				attack="12"
-				decay="15"
-				sustain="2"
-				release="5"
+				attack="10"
+				decay="2"
+				sustain="0"
+				release="1"
 				sustained="true"
 				keyScaleRate="false"
 				keyScaleLevel="0"
@@ -299,7 +295,7 @@
 			/>
 		</VRC7Instrument>
 		<VRC7Instrument>
-			<!--15 11 25 00 4F 71 00 11-->
+			<!--35 11 25 00 40 73 72 01-->
 			<meta>
 				<name>Soft Bell</name>
 				<patch>8</patch>
@@ -313,10 +309,10 @@
 				tremolo="false"
 				vibrato="false"
 				attack="4"
-				decay="15"
-				sustain="0"
-				release="0"
-				sustained="false"
+				decay="0"
+				sustain="7"
+				release="2"
+				sustained="true"
 				keyScaleRate="true"
 				keyScaleLevel="0"
 			/>
@@ -326,8 +322,8 @@
 				tremolo="false"
 				vibrato="false"
 				attack="7"
-				decay="1"
-				sustain="1"
+				decay="3"
+				sustain="0"
 				release="1"
 				sustained="false"
 				keyScaleRate="true"
@@ -335,7 +331,7 @@
 			/>
 		</VRC7Instrument>
 		<VRC7Instrument>
-			<!--85 01 12 0F 99 A2 40 02-->
+			<!--B5 01 0F 0F A8 A5 51 02-->
 			<meta>
 				<name>Marimba</name>
 				<patch>9</patch>
@@ -344,16 +340,16 @@
 			<Modulator
 				mult="5"
 				feedback="7"
-				index="18"
+				index="15"
 				rectify="true"
 				tremolo="true"
 				vibrato="false"
-				attack="9"
-				decay="9"
-				sustain="4"
-				release="0"
-				sustained="false"
-				keyScaleRate="false"
+				attack="10"
+				decay="8"
+				sustain="5"
+				release="1"
+				sustained="true"
+				keyScaleRate="true"
 				keyScaleLevel="0"
 			/>
 			<Carrier
@@ -362,7 +358,7 @@
 				tremolo="false"
 				vibrato="false"
 				attack="10"
-				decay="2"
+				decay="5"
 				sustain="0"
 				release="2"
 				sustained="false"
@@ -371,7 +367,7 @@
 			/>
 		</VRC7Instrument>
 		<VRC7Instrument>
-			<!--07 C1 69 07 F3 F5 A7 12-->
+			<!--17 C1 24 07 F8 F8 22 12-->
 			<meta>
 				<name>Vibraphone</name>
 				<patch>10</patch>
@@ -380,17 +376,17 @@
 			<Modulator
 				mult="7"
 				feedback="7"
-				index="41"
+				index="36"
 				rectify="false"
 				tremolo="false"
 				vibrato="false"
 				attack="15"
-				decay="3"
-				sustain="10"
-				release="7"
+				decay="8"
+				sustain="2"
+				release="2"
 				sustained="false"
-				keyScaleRate="false"
-				keyScaleLevel="1"
+				keyScaleRate="true"
+				keyScaleLevel="0"
 			/>
 			<Carrier
 				mult="1"
@@ -398,7 +394,7 @@
 				tremolo="true"
 				vibrato="true"
 				attack="15"
-				decay="5"
+				decay="8"
 				sustain="1"
 				release="2"
 				sustained="false"
@@ -407,7 +403,7 @@
 			/>
 		</VRC7Instrument>
 		<VRC7Instrument>
-			<!--71 23 0D 06 67 75 23 16-->
+			<!--71 23 11 06 65 74 18 16-->
 			<meta>
 				<name>Brass</name>
 				<patch>11</patch>
@@ -416,14 +412,14 @@
 			<Modulator
 				mult="1"
 				feedback="6"
-				index="13"
+				index="17"
 				rectify="false"
 				tremolo="false"
 				vibrato="true"
 				attack="6"
-				decay="7"
-				sustain="2"
-				release="3"
+				decay="5"
+				sustain="1"
+				release="8"
 				sustained="true"
 				keyScaleRate="true"
 				keyScaleLevel="0"
@@ -434,7 +430,7 @@
 				tremolo="false"
 				vibrato="false"
 				attack="7"
-				decay="5"
+				decay="4"
 				sustain="1"
 				release="6"
 				sustained="true"
@@ -443,7 +439,7 @@
 			/>
 		</VRC7Instrument>
 		<VRC7Instrument>
-			<!--01 02 D3 05 A3 92 F7 52-->
+			<!--01 02 D3 05 C9 95 03 02-->
 			<meta>
 				<name>Acoustic Bass</name>
 				<patch>12</patch>
@@ -456,10 +452,10 @@
 				rectify="false"
 				tremolo="false"
 				vibrato="false"
-				attack="10"
-				decay="3"
-				sustain="15"
-				release="7"
+				attack="12"
+				decay="9"
+				sustain="0"
+				release="3"
 				sustained="false"
 				keyScaleRate="false"
 				keyScaleLevel="3"
@@ -470,8 +466,8 @@
 				tremolo="false"
 				vibrato="false"
 				attack="9"
-				decay="2"
-				sustain="5"
+				decay="5"
+				sustain="0"
 				release="2"
 				sustained="false"
 				keyScaleRate="false"
@@ -479,7 +475,7 @@
 			/>
 		</VRC7Instrument>
 		<VRC7Instrument>
-			<!--61 63 0C 00 94 AF 34 06-->
+			<!--61 63 0C 00 94 C0 33 F6-->
 			<meta>
 				<name>Synthesizer</name>
 				<patch>13</patch>
@@ -495,7 +491,7 @@
 				attack="9"
 				decay="4"
 				sustain="3"
-				release="4"
+				release="3"
 				sustained="true"
 				keyScaleRate="false"
 				keyScaleLevel="0"
@@ -505,9 +501,9 @@
 				rectify="false"
 				tremolo="false"
 				vibrato="true"
-				attack="10"
-				decay="15"
-				sustain="0"
+				attack="12"
+				decay="0"
+				sustain="15"
 				release="6"
 				sustained="true"
 				keyScaleRate="false"
@@ -515,7 +511,7 @@
 			/>
 		</VRC7Instrument>
 		<VRC7Instrument>
-			<!--21 72 0D 00 C1 A0 54 16-->
+			<!--21 72 0D 00 C1 D5 56 06-->
 			<meta>
 				<name>Rock Organ</name>
 				<patch>14</patch>
@@ -531,7 +527,7 @@
 				attack="13"
 				decay="1"
 				sustain="5"
-				release="4"
+				release="6"
 				sustained="true"
 				keyScaleRate="false"
 				keyScaleLevel="0"
@@ -541,9 +537,9 @@
 				rectify="false"
 				tremolo="false"
 				vibrato="true"
-				attack="10"
-				decay="0"
-				sustain="1"
+				attack="13"
+				decay="5"
+				sustain="0"
 				release="6"
 				sustained="true"
 				keyScaleRate="true"

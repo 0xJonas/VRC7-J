@@ -2,7 +2,7 @@
 	<meta>
 		<name>Lagrange Point</name>
 		<version>1.0</version>
-		<author>Konami (original instruments), Delphi1024 (.vsb file)</author>
+		<author>Konami (original instruments), Delphi1024 (finding the patch data)</author>
 		<description>Contains the instruments used in Konami's Lagrange Point.</description>
 	</meta>
 	<instruments>
