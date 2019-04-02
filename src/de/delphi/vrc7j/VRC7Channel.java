@@ -14,9 +14,9 @@ public class VRC7Channel implements MidiChannel {
 								RESET_ALL_CONTROLLERS=0x79,
 								ALL_NOTES_OFF=0x7b;
 						
-	private static final int[] FEEDBACK_SHIFT={20,7,6,5,4,3,2,1};
+	private static final int[] FEEDBACK_SHIFT={0,-4,-3,-2,-1,0,1,2};
 	
-	private static final int[] MULT={1,2,4,6,8,10,12,14,16,18,20,20,24,24,30,30};
+	private static final double[] MULT={0.125,0.25,0.5,0.75,1,1.25,1.5,1.75,2,2.25,2.5,2.5,3,3,3.75,3.75};
 	
 	private static final int[] KSL={0,64,80,90,96,102,106,110,112,116,118,120,122,124,126,127};
 	
@@ -51,13 +51,13 @@ public class VRC7Channel implements MidiChannel {
 	
 	private int feedback,index;
 	
+	private int modPrev=0,modPrevPrev=0;
+	
 	private boolean modVibrato,modTremolo;
 	
 	private boolean carVibrato,carTremolo;
 	
 	private int modKeyScaleLevel,carKeyScaleLevel;
-	
-	private int modPrev;
 	
 	private int fNum,octave;
 	
@@ -94,13 +94,20 @@ public class VRC7Channel implements MidiChannel {
 		//Calculate vibrato, tremolo and keyscale, since their values are the same for both modulator and carrier
 		FMAMGenerator fmam=synth.getFMAMGenerator();
 		int vibValue=fmam.getVibrato(fNum, octave);
-		int tremValue=fmam.getTremolo();
+		//int tremValue=fmam.getTremolo();
+		int tremValue=0;	//TODO temporarily disabled
 		int kslValue=Math.max(KSL[fNum>>5]-0b1000+octave,0);
 		
 		int modFreq=0;
 		//Apply feedback to modulator
-		if(feedback!=0)
-			modFreq=(modPrev>>FEEDBACK_SHIFT[feedback]);
+		if(feedback!=0) {
+			modFreq=(modPrevPrev+modPrev)/2;
+			if(FEEDBACK_SHIFT[feedback]<0)
+				modFreq=(modFreq>>>-FEEDBACK_SHIFT[feedback]);
+			else
+				modFreq=(modFreq<<FEEDBACK_SHIFT[feedback]);
+			modFreq>>>=2;
+		}
 		
 		//Apply vibrato to modulator
 		int modVib=0;
@@ -108,27 +115,29 @@ public class VRC7Channel implements MidiChannel {
 			modVib=vibValue;
 		
 		//get modulator envelope
-		int modAmp=modEnv.fetchEnvelope()<<5;
+		int modAmp=modEnv.fetchEnvelope()<<1;
 		
 		//get modulator attenuation.
-		modAmp+=index<<5;
+		modAmp+=index<<1;
 		
 		//Apply tremolo to modulator
 		if(modTremolo)
 			modAmp+=tremValue;
 		
 		//Apply key level scaling to modulator
-		if(modKeyScaleLevel!=0)
-			modAmp+=(kslValue>>(0b11^modKeyScaleLevel));
+		if(modKeyScaleLevel!=0)		//TODO not working right now
+			modAmp+=(kslValue>>>(0b11^modKeyScaleLevel));
 		
 		//Get modulator value.
 		int modValue=modulator.fetchSample(modFreq,modVib, modAmp);
 		if(modEnv.getState()==Envelope.IDLE)
 			modValue=0;
+		modPrevPrev=modPrev;
 		modPrev=modValue;
 		
 		//Apply modulation
-		int carFreq=modValue;
+		int carFreq=(modValue<<1) & (1<<10)-1;
+		//int carFreq=0;
 		
 		//Apply vibrato to carrier
 		int carVib=0;
@@ -136,25 +145,25 @@ public class VRC7Channel implements MidiChannel {
 			carVib=vibValue;
 		
 		//Get carrier envelope
-		int carAmp=carEnv.fetchEnvelope()<<5;
+		int carAmp=carEnv.fetchEnvelope()<<1;
 		
 		//Apply MIDI note velocity
-		carAmp+=velocity<<7;
+		carAmp+=velocity<<3;
 		
 		//Apply tremolo to carrier
 		if(carTremolo)
 			carAmp+=tremValue;
 		
 		//Apply key scaling to carrier
-		if(carKeyScaleLevel!=0)
-			modAmp+=(kslValue>>(0b11^carKeyScaleLevel));
+		if(carKeyScaleLevel!=0)		//TODO not working right now
+			carAmp+=(kslValue>>>(0b11^carKeyScaleLevel));
 		
 		//Get carrier value
 		int carValue=carrier.fetchSample(carFreq, carVib, carAmp);
 		if(carEnv.getState()==Envelope.IDLE)
 			carValue=0;
-
-		return carValue>>5;
+		
+		return carValue<<4;
 	}
 	
 	private static int MidiToVRC7Volume(int velocity,int channelVolume) {

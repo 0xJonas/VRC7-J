@@ -10,10 +10,10 @@ package de.delphi.vrc7j;
 	
 	/*package*/ static int[] logSinTable=new int[256];
 	
-	private static int[] fastExpTable=new int[1<<13];
+	private static short[] fastExpTable=new short[1<<12];
 	
-	/*package*/ static final int IN_MASK=(1<<20)-1,
-							OUT_MASK=(1<<20)-1;
+	/*package*/ static final int IN_MASK=(1<<10)-1,
+							OUT_MASK=(1<<11)-1;
 	
 	//VRC7/OPLL base frequency
 	/*package*/ static final double OPERATOR_CLOCK=3579545.0/72.0;
@@ -27,7 +27,7 @@ package de.delphi.vrc7j;
 		}
 		
 		for(int i=0;i<fastExpTable.length;i++) {
-			fastExpTable[i]=dbToLinear(i) & OUT_MASK;
+			fastExpTable[i]=(short) (dbToLinear(i) & OUT_MASK);
 		}
 	}
 	
@@ -37,34 +37,33 @@ package de.delphi.vrc7j;
 	 * @return Linear value according to the exp table
 	 */
 	public static int dbToLinear(int db) {
-		int shift=0b111^Math.min(db>>>8,7);
+		int shift=db>>>8;
+		if(shift>15)
+			return expTable[0];
 		db=expTable[(db & 0xff)^0xff];	//10 bit
 		db+=1024;				//11 bit
-		db<<=shift+2;
+		db>>=shift;
 		return db;
 	}
 	
 	/**
-	 * Returns log(sin(phase)), using the logSin table. The phase is expected to be 18 bits wide, although the most significant bit (sign bit of the output)
+	 * Returns log(sin(phase)), using the logSin table. The phase is expected to be 10 bits wide, although the most significant bit (sign bit of the output)
 	 * is not used by this function. This means that the output is logSin for phases 0 to pi, and the phases pi to 2pi have to be created by negating the output.
 	 * @param phase Input phase
 	 * @return Corresponding entry in the logSin table
 	 */
 	public static int logSin(int phase) {
-		if((phase & (1<<16))!=0)
-			phase^=IN_MASK;
-		return logSinTable[(phase>>>8) & 0xff];
+		if((phase & (1<<8))!=0)
+			phase=~phase;
+		return logSinTable[phase & 0xff];
 	}
 	
 	//Frequency multiplier
-	private int mult=1;
+	private double mult=1;
 	
-	//Phase counter (18 bit) and phase counter increment
+	//Phase counter (19 bit) and phase counter increment
 	private int phase=0,phaseInc=0;
-	
-	//Previous output
-	private int prevOutput=0;
-	
+		
 	//F-number and octave
 	@SuppressWarnings("unused")
 	private int fNum=0,octave;
@@ -79,7 +78,7 @@ package de.delphi.vrc7j;
 	public void setFNumber(int fNum,int octave) {
 		this.octave=octave;
 		this.fNum=fNum;
-		phaseInc=fNum<<octave;
+		phaseInc=fNum<<(octave+2);
 	}
 	
 	/**
@@ -95,19 +94,18 @@ package de.delphi.vrc7j;
 	 */
 	public void start() {
 		phase=0;
-		prevOutput=0;
 	}
 	
 	/**
 	 * Sets the multiplier for this operator. Used to set the ratio between the modulator's and carrier's frequency.
 	 * @param mult
 	 */
-	public void setMultiplier(int mult) {
+	public void setMultiplier(double mult) {
 		this.mult=mult;
 	}
 	
 	/**
-	 * Fetches a single sample from the operator. The output is 21 bits wide of which the MSB denotes the sign. This function will also update the internal state
+	 * Fetches a single sample from the operator. The output is 10 bits wide of which the MSB denotes the sign. This function will also update the internal state
 	 * of the operator, so that successive calls will each yield the next sample.
 	 * @param freqDiff Applies phase modulation to the operator. Used for Feedback and modulator input.
 	 * @param vib Also applies phase modulation to the operator, but is handled in a different way then freqDiff. Used for vibrato effect.
@@ -115,35 +113,31 @@ package de.delphi.vrc7j;
 	 * @return One sample of the modulator.
 	 */
 	public int fetchSample(int freqDiff,int vib,int ampDiff) {
-		if(phaseInc>0) {
-			phaseInc=phaseInc+0;
-		}
-		int realPhase=((phase>>2)+freqDiff) & IN_MASK;
-		phase=(phase+phaseInc*mult+vib*mult) & IN_MASK;
+		int realPhase=((phase>>>9)+freqDiff) & IN_MASK;
+		int phaseIncFull=(int) ((phaseInc+vib)*mult);
+		phase=(phase+phaseIncFull) & (1<<19)-1;
 		
 		//Check if the output should be negated (phase>pi)
-		boolean negate=(realPhase & (1<<17))!=0;
+		boolean negate=(realPhase & (1<<9))!=0;
 		
 		//Get value in "dB"
 		int output=logSin(realPhase);
 		
-		output+=ampDiff;
+		output+=ampDiff<<4;
 		
 		//Convert to linear
-		output=fastExpTable[output];
+		if(output>=(1<<12))
+			output=0;
+		else
+			output=fastExpTable[output];
 		
 		if(negate) {
 			if(rectify) {	//set output to 0 if half sine waveform is selected
 				output=0;
 			}else {		//otherwise, just negate output
-				output=-output;
+				output=~output;
 			}
 		}
-		
-		//Average with previous value
-		int temp=prevOutput;
-		prevOutput=output;
-		output=(output+temp)>>1;
 		return output;
 	}
 }

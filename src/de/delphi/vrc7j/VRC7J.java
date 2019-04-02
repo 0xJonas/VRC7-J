@@ -16,7 +16,6 @@ import javax.sound.midi.MidiSystem;
 import javax.sound.midi.MidiUnavailableException;
 import javax.sound.midi.Patch;
 import javax.sound.midi.Receiver;
-import javax.sound.midi.ShortMessage;
 import javax.sound.midi.Soundbank;
 import javax.sound.midi.Synthesizer;
 import javax.sound.midi.Transmitter;
@@ -277,13 +276,7 @@ public class VRC7J implements Synthesizer {
 			
 			int resampleOrder=3;
 			resampler=new Resampler(resampleOrder,Operator.OPERATOR_CLOCK,sampleRate);
-			
-			//prefill buffer of the resampler
-			/*for(int i=0;i<resampleOrder-1;i++) {
-				vrc7Hybrid.addSample(fetchSample());
-				resampler.prefill(vrc7Hybrid.fetchSample());
-			}*/
-			
+						
 			while(!Thread.currentThread().isInterrupted()) {
 				//Check for midi messages
 				while(pendingMessages.size()>0 && pendingMessages.peek().timeStamp<=clock) {
