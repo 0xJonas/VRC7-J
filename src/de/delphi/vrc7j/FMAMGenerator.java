@@ -14,23 +14,13 @@ package de.delphi.vrc7j;
 	
 	public int getVibrato(int fNum,int octave) {
 		int inc=0;
-		switch((vibratoCounter>>10) & 0b11) {
-		case 0:{
-			inc=0;
-			break;
-		}case 1:{
-			inc=fNum>>7;
-			break;
-		}case 2:{
+		if((vibratoCounter & (1<<11))!=0) {
 			inc=fNum>>6;
-			break;
-		}case 3:{
-			// Not sure about this one. Would probably help the vibrato modulation to aproximate a sine wave but it also just looks wrong.
-			// Maybe i missed something on the die here...
-			inc=(fNum>>7) | (fNum>>6);
-			break;
 		}
+		if((vibratoCounter & (1<<10))!=0) {
+			inc=fNum>>7;
 		}
+		
 		if(vibratoCounter>=0x1000) {
 			inc=-inc;	// actual 2s-complement, not just bit inversion
 		}
