@@ -11,11 +11,19 @@ package de.delphi.vrc7j;
 	
 	private static final int CYCLE_MASK=(1<<23)-1;
 	
-	private static final int[][] INCREMENTS={{0,1,0,1,0,1,0,1},
+	private static final int RATE_14=4,
+							RATE_15=8,
+							RATE_DEFAULT=9;
+	
+	private static final int[][] INCREMENTS={{0,1,0,1,0,1,0,1},	//Rates 1-13 
 											 {0,1,0,1,1,1,0,1},
 	                                         {0,1,1,1,0,1,1,1},
 	                                         {0,1,1,1,1,1,1,1},
-	                                         {1,1,1,1,1,1,1,1},	//Used for rate=15
+	                                         {1,1,1,1,1,1,1,1},	//Rate 14 0
+	                                         {1,1,1,2,1,1,1,2},	//Rate 14 1
+	                                         {1,2,1,2,1,2,1,2},	//Rate 14 2
+	                                         {1,2,2,2,1,2,2,2},	//Rate 14 3
+	                                         {2,2,2,2,2,2,2,2},	//Rate 15
 	                                         {0,0,0,0,0,0,0,0}};//Used for non-percussive sustain/idle
 	
 	private int  attackRate,decayRate,sustainLevel,releaseRate;
@@ -50,7 +58,7 @@ package de.delphi.vrc7j;
 		this.attackRate=attackRate;
 		this.decayRate=decayRate;
 		this.releaseRate=releaseRate;
-		this.sustainLevel=sustainLevel<<2;
+		this.sustainLevel=sustainLevel<<3;
 		this.sustained=sustained;
 		this.keyScale=keyScale;
 	}
@@ -63,51 +71,57 @@ package de.delphi.vrc7j;
 		int rate=Math.min(attackRate*4+ksr,63);
 		if(rate>=0x3c) {
 			skipAttack=true;
-		}else if(rate>=0x38) {				//TODO
+		}else if(rate>=0x38) {
 			skipAttack=false;
-			attackInc=INCREMENTS[4];
+			attackInc=INCREMENTS[RATE_14+(rate & 3)];
 			attackShift=0;
 		}else if(attackRate==0){
 			skipAttack=false;
-			attackInc=INCREMENTS[5];
+			attackInc=INCREMENTS[RATE_DEFAULT];
 			attackShift=20;
 		}else {
 			skipAttack=false;
 			attackInc=INCREMENTS[rate & 3];
-			attackShift=((0x3f ^ rate)>>2)-2;	//yes, 2
+			attackShift=((0x3f ^ rate)>>2)-2;
 		}
 				
 		rate=Math.min(decayRate*4+ksr,63);
 		if(rate>=0x3c) {
-			decayInc=INCREMENTS[4];
+			decayInc=INCREMENTS[RATE_15];
+			decayShift=0;
+		}else if(rate>=0x38){
+			decayInc=INCREMENTS[RATE_14+(rate & 3)];
 			decayShift=0;
 		}else if(decayRate==0){
-			decayInc=INCREMENTS[5];
+			decayInc=INCREMENTS[RATE_DEFAULT];
 			decayShift=20;
 		}else {
 			decayInc=INCREMENTS[rate & 3];
-			decayShift=((0x3f ^ rate)>>2)-1;
+			decayShift=((0x3f ^ rate)>>2)-2;
 		}
 		
 		rate=Math.min(releaseRate*4+ksr,63);
 		if(rate>=0x3c) {
-			releaseInc=INCREMENTS[4];
+			releaseInc=INCREMENTS[RATE_15];
+			releaseShift=0;
+		}else if(rate>=0x38){
+			releaseInc=INCREMENTS[RATE_14+(rate & 3)];
 			releaseShift=0;
 		}else if(releaseRate==0){
-			releaseInc=INCREMENTS[5];
+			releaseInc=INCREMENTS[RATE_DEFAULT];
 			releaseShift=20;
 		}else {
 			releaseInc=INCREMENTS[rate & 3];
-			releaseShift=((0x3f ^ rate)>>2)-1;
+			releaseShift=((0x3f ^ rate)>>2)-2;
 		}
 		
 		rate=Math.min(7*4+ksr,63);
 		percussiveInc=INCREMENTS[rate & 3];
-		percussiveShift=((0x3f ^ rate)>>2)-1;
+		percussiveShift=((0x3f ^ rate)>>2)-2;
 
 		rate=Math.min(5*4+ksr,63);
 		sustainInc=INCREMENTS[rate & 3];
-		sustainShift=((0x3f ^ rate)>>2)-1;
+		sustainShift=((0x3f ^ rate)>>2)-2;
 	}
 	
 	public void start() {
@@ -186,7 +200,7 @@ package de.delphi.vrc7j;
 		if((cycleCounter & (1<<currentShift)-1)==0) {
 			int inc=currentInc[(cycleCounter>>currentShift) & 0b111];
 			if(state==ATTACK) {
-				output+=inc*((64-output)/4+1);
+				output+=inc*((128-output)/4+1);
 			}else if(state!=IDLE){
 				output+=inc;
 			}
@@ -194,7 +208,7 @@ package de.delphi.vrc7j;
 		
 		cycleCounter=(cycleCounter+1) & CYCLE_MASK;
 		
-		if(state==ATTACK && output>=63) {
+		if(state==ATTACK && output>=127) {
 			setState(DECAY);
 			output=0;
 		}
@@ -202,16 +216,16 @@ package de.delphi.vrc7j;
 			setState(SUSTAIN);
 			output=sustainLevel;
 		}
-		if((state==SUSTAIN || state==RELEASE) && output>=63) {
+		if((state==SUSTAIN || state==RELEASE) && output>=127) {
 			setState(IDLE);
-			output=63;
+			output=127;
 		}
 		
 		if(state==ATTACK) 
-			return 0x3f^output;
+			return 0x7f^output;
 		else if(state!=IDLE)
 			return output;
 		else
-			return 0x3f;
+			return 0x7f;
 	}
 }

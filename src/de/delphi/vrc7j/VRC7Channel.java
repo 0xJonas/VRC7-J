@@ -18,7 +18,7 @@ public class VRC7Channel implements MidiChannel {
 	
 	private static final double[] MULT={0.125,0.25,0.5,0.75,1,1.25,1.5,1.75,2,2.25,2.5,2.5,3,3,3.75,3.75};
 	
-	private static final int[] KSL={0,64,80,90,96,102,106,110,112,116,118,120,122,124,126,127};
+	private static final int[] KSL={0,32,40,45,48,51,53,55,56,58,59,60,61,62,63,64};
 	
 	private static final double[] octaveBounds={31.78545, 63.5709, 127.1418, 254.28361, 508.56722, 1017.13443, 2034.26886};
 	
@@ -96,7 +96,7 @@ public class VRC7Channel implements MidiChannel {
 		int vibValue=fmam.getVibrato(fNum, octave);
 		//int tremValue=fmam.getTremolo();
 		int tremValue=0;	//TODO temporarily disabled
-		int kslValue=Math.max(KSL[fNum>>5]-0b1000+octave,0);
+		int kslValue=Math.max(KSL[fNum>>5]+((0b111^octave)<<3),63);
 		
 		int modFreq=0;
 		//Apply feedback to modulator
@@ -115,7 +115,7 @@ public class VRC7Channel implements MidiChannel {
 			modVib=vibValue;
 		
 		//get modulator envelope
-		int modAmp=modEnv.fetchEnvelope()<<1;
+		int modAmp=modEnv.fetchEnvelope();
 		
 		//get modulator attenuation.
 		modAmp+=index<<1;
@@ -126,7 +126,9 @@ public class VRC7Channel implements MidiChannel {
 		
 		//Apply key level scaling to modulator
 		if(modKeyScaleLevel!=0)		//TODO not working right now
-			modAmp+=(kslValue>>>(0b11^modKeyScaleLevel));
+			modAmp+=(kslValue>>>(0b11^modKeyScaleLevel))<<1;
+		
+		modAmp=Math.min(modAmp, 0x7f);
 		
 		//Get modulator value.
 		int modValue=modulator.fetchSample(modFreq,modVib, modAmp);
@@ -137,7 +139,6 @@ public class VRC7Channel implements MidiChannel {
 		
 		//Apply modulation
 		int carFreq=(modValue<<1) & (1<<10)-1;
-		//int carFreq=0;
 		
 		//Apply vibrato to carrier
 		int carVib=0;
@@ -145,7 +146,7 @@ public class VRC7Channel implements MidiChannel {
 			carVib=vibValue;
 		
 		//Get carrier envelope
-		int carAmp=carEnv.fetchEnvelope()<<1;
+		int carAmp=carEnv.fetchEnvelope();
 		
 		//Apply MIDI note velocity
 		carAmp+=velocity<<3;
@@ -156,7 +157,9 @@ public class VRC7Channel implements MidiChannel {
 		
 		//Apply key scaling to carrier
 		if(carKeyScaleLevel!=0)		//TODO not working right now
-			carAmp+=(kslValue>>>(0b11^carKeyScaleLevel));
+			carAmp+=(kslValue>>>(0b11^carKeyScaleLevel))<<1;
+		
+		carAmp=Math.min(carAmp, 0x7f);
 		
 		//Get carrier value
 		int carValue=carrier.fetchSample(carFreq, carVib, carAmp);
