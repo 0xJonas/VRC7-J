@@ -26,7 +26,7 @@ package de.delphi.vrc7j;
 	}
 	
 	public int getTremolo() {
-		return (tremoloVal>>3);
+		return tremoloVal>>3;
 	}
 
 	public void update() {

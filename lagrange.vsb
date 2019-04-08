@@ -218,7 +218,7 @@
 		</VRC7Instrument>
 		<VRC7Instrument>
 			<meta>
-				<name>LP 6</name>
+				<name>LP 6 "Buzz Bell"</name>
 				<patch>21</patch>
 				<bank>0</bank>
 			</meta>
@@ -253,7 +253,7 @@
 		</VRC7Instrument>
 		<VRC7Instrument>
 			<meta>
-				<name>LP 7 (unused)</name>
+				<name>LP 7 "Buzz Bell Sustained" (unused)</name>
 				<patch>22</patch>
 				<bank>0</bank>
 			</meta>
@@ -288,7 +288,7 @@
 		</VRC7Instrument>
 		<VRC7Instrument>
 			<meta>
-				<name>LP 8 (unused)</name>
+				<name>LP 8 "Distortion Guitar" (unused)</name>
 				<patch>23</patch>
 				<bank>0</bank>
 			</meta>
@@ -323,7 +323,7 @@
 		</VRC7Instrument>
 		<VRC7Instrument>
 			<meta>
-				<name>LP 9 (unused)</name>
+				<name>LP 9 "Metal Pad" (unused)</name>
 				<patch>24</patch>
 				<bank>0</bank>
 			</meta>
@@ -708,7 +708,7 @@
 		</VRC7Instrument>
 		<VRC7Instrument>
 			<meta>
-				<name>LP 20</name>
+				<name>LP 20 "Electric Piano"</name>
 				<patch>35</patch>
 				<bank>0</bank>
 			</meta>
@@ -848,7 +848,7 @@
 		</VRC7Instrument>
 		<VRC7Instrument>
 			<meta>
-				<name>LP 24</name>
+				<name>LP 24 "Steel Drum"</name>
 				<patch>39</patch>
 				<bank>0</bank>
 			</meta>
@@ -883,7 +883,7 @@
 		</VRC7Instrument>
 		<VRC7Instrument>
 			<meta>
-				<name>LP 25</name>
+				<name>LP 25 "Atmosphere"</name>
 				<patch>40</patch>
 				<bank>0</bank>
 			</meta>
@@ -1023,7 +1023,7 @@
 		</VRC7Instrument>
 		<VRC7Instrument>
 			<meta>
-				<name>LP 29</name>
+				<name>LP 29 "Bass Pad"</name>
 				<patch>44</patch>
 				<bank>0</bank>
 			</meta>
@@ -1058,7 +1058,7 @@
 		</VRC7Instrument>
 		<VRC7Instrument>
 			<meta>
-				<name>LP 30 "Square Wave"</name>
+				<name>LP 30 "Clarinet"</name>
 				<patch>45</patch>
 				<bank>0</bank>
 			</meta>
@@ -1163,7 +1163,7 @@
 		</VRC7Instrument>
 		<VRC7Instrument>
 			<meta>
-				<name>LP 33</name>
+				<name>LP 33 "Buzz Bell"</name>
 				<patch>48</patch>
 				<bank>0</bank>
 			</meta>
@@ -1198,7 +1198,7 @@
 		</VRC7Instrument>
 		<VRC7Instrument>
 			<meta>
-				<name>LP 34</name>
+				<name>LP 34 "Harpsichord"</name>
 				<patch>49</patch>
 				<bank>0</bank>
 			</meta>
@@ -1338,7 +1338,7 @@
 		</VRC7Instrument>
 		<VRC7Instrument>
 			<meta>
-				<name>LP 38 (unused)</name>
+				<name>LP 38 "Electric Bass" (unused)</name>
 				<patch>53</patch>
 				<bank>0</bank>
 			</meta>
@@ -1793,7 +1793,7 @@
 		</VRC7Instrument>
 		<VRC7Instrument>
 			<meta>
-				<name>LP 51</name>
+				<name>LP 51 "Glass"</name>
 				<patch>66</patch>
 				<bank>0</bank>
 			</meta>
@@ -2073,7 +2073,7 @@
 		</VRC7Instrument>
 		<VRC7Instrument>
 			<meta>
-				<name>LP 59 (unused)</name>
+				<name>LP 59 "Shamisen" (unused)</name>
 				<patch>74</patch>
 				<bank>0</bank>
 			</meta>
@@ -2248,7 +2248,7 @@
 		</VRC7Instrument>
 		<VRC7Instrument>
 			<meta>
-				<name>LP 64 (unused)</name>
+				<name>LP 64 "Pizzicato String" (unused)</name>
 				<patch>79</patch>
 				<bank>0</bank>
 			</meta>
