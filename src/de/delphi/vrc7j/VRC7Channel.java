@@ -94,8 +94,7 @@ public class VRC7Channel implements MidiChannel {
 		//Calculate vibrato, tremolo and keyscale, since their values are the same for both modulator and carrier
 		FMAMGenerator fmam=synth.getFMAMGenerator();
 		int vibValue=fmam.getVibrato(fNum, octave);
-		//int tremValue=fmam.getTremolo();
-		int tremValue=0;	//TODO temporarily disabled
+		int tremValue=fmam.getTremolo();
 		int kslValue=Math.max(KSL[fNum>>5]+((0b111^octave)<<3),63);
 		
 		int modFreq=0;

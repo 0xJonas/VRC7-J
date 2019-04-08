@@ -1,12 +1,10 @@
 package de.delphi.vrc7j;
 
 /*package*/ class FMAMGenerator {
-
-	private static final int TREMOLO_RATE=78;
 	
 	private int vibratoCounter=0;
 	
-	private int tremoloCounter=0;
+	private int tremoloInc=1,tremoloVal=0;
 	
 	public FMAMGenerator() {
 		
@@ -27,17 +25,18 @@ package de.delphi.vrc7j;
 		return inc<<(octave+1);		//one less then the octave shift from fNum
 	}
 	
-	public int getTremolo() {	//TODO very wrong, temporary
-		int tremValue=Operator.dbToLinear(Operator.logSin(tremoloCounter>>2));
-		if(tremoloCounter>=(1<<11))
-			tremValue=-tremValue;
-		tremValue+=1<<11;
-		tremValue=tremValue*13>>7;
-		return tremValue;
+	public int getTremolo() {
+		return (tremoloVal>>3);
 	}
 
 	public void update() {
-		tremoloCounter=(tremoloCounter+TREMOLO_RATE) & 0xfffff;
 		vibratoCounter=(vibratoCounter+1) & 0x1fff;
+		
+		if((vibratoCounter & 0x3f)==0) {
+			tremoloVal+=tremoloInc;
+			if(tremoloVal>=0x69 || tremoloVal<=0) {
+				tremoloInc*=-1;
+			}
+		}
 	}
 }
