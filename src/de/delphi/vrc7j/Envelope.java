@@ -1,64 +1,55 @@
 package de.delphi.vrc7j;
 
-/*package*/ class Envelope {
+public class Envelope {
 	
-	public static  final int ATTACK=0,
+	public static final int DAMPING=3,
+							ATTACK=0,
 							DECAY=1,
-							SUSTAIN=2,
-							RELEASE=3,
-							IDLE=4;
-							//SETTLE=5;  //Does this exist on the ym2413 ?
+							RELEASE=2;
 	
-	private static final int CYCLE_MASK=(1<<23)-1;
+	private static final int PERCUSSIVE_RATE=7,
+							SUSTAINED_RATE=5,
+							DAMPING_RATE=12;
 	
-	private static final int RATE_14=4,
-							RATE_15=8,
-							RATE_DEFAULT=9;
-	
-	private static final int[][] INCREMENTS={{0,1,0,1,0,1,0,1},	//Rates 1-13 
-											 {0,1,0,1,1,1,0,1},
-	                                         {0,1,1,1,0,1,1,1},
-	                                         {0,1,1,1,1,1,1,1},
-	                                         {1,1,1,1,1,1,1,1},	//Rate 14 0
-	                                         {1,1,1,2,1,1,1,2},	//Rate 14 1
-	                                         {1,2,1,2,1,2,1,2},	//Rate 14 2
-	                                         {1,2,2,2,1,2,2,2},	//Rate 14 3
-	                                         {2,2,2,2,2,2,2,2},	//Rate 15
-	                                         {0,0,0,0,0,0,0,0}};//Used for non-percussive sustain/idle
+	private static final boolean[][] ENV_TABLE= {
+									{false,false,false,false},
+									{true, false,false,false},
+									{true, false,true, false},
+									{true, true, true, false}
+								};
 	
 	private int  attackRate,decayRate,sustainLevel,releaseRate;
-	
-	private int attackShift,decayShift,releaseShift,sustainShift,percussiveShift;
-	
-	private int[] attackInc,decayInc,releaseInc,sustainInc,percussiveInc;
-	
-	private int currentShift=20;
-	
-	private int[] currentInc=INCREMENTS[5];
-	
-	private int cycleCounter=0;
-	
-	private int output=0;
-	
+
 	private boolean sustained,keyScale;
 	
+	private int currentHigh,rateLow;
+	
+	private int attackHigh,
+				decayHigh,
+				releaseHigh,
+				percussiveHigh,
+				sustainedHigh,
+				dampingHigh;
+	
+	private int cycleCounter=0,miniCounter=0;
+	
+	private int output=127;
+
 	private boolean sustainNote;
+
+	private int state=RELEASE;
 	
-	private boolean skipAttack=false;
-	
-	private int state=IDLE;
+	private boolean envelopeEnabled=true;
 	
 	public Envelope() {
-		//Initialize variables
-		setRates(0,0,0,0,false,false);
-		setFNumber(0,0);
+		
 	}
 	
 	public void setRates(int attackRate,int decayRate,int sustainLevel,int releaseRate,boolean sustained,boolean keyScale) {
 		this.attackRate=attackRate;
 		this.decayRate=decayRate;
 		this.releaseRate=releaseRate;
-		this.sustainLevel=sustainLevel<<3;
+		this.sustainLevel=sustainLevel;
 		this.sustained=sustained;
 		this.keyScale=keyScale;
 	}
@@ -68,106 +59,30 @@ package de.delphi.vrc7j;
 		if(!keyScale)
 			ksr>>=2;
 		
-		int rate=Math.min(attackRate*4+ksr,63);
-		if(rate>=0x3c) {
-			skipAttack=true;
-		}else if(rate>=0x38) {
-			skipAttack=false;
-			attackInc=INCREMENTS[RATE_14+(rate & 3)];
-			attackShift=0;
-		}else if(attackRate==0){
-			skipAttack=false;
-			attackInc=INCREMENTS[RATE_DEFAULT];
-			attackShift=20;
-		}else {
-			skipAttack=false;
-			attackInc=INCREMENTS[rate & 3];
-			attackShift=((0x3f ^ rate)>>2)-2;
-		}
-				
-		rate=Math.min(decayRate*4+ksr,63);
-		if(rate>=0x3c) {
-			decayInc=INCREMENTS[RATE_15];
-			decayShift=0;
-		}else if(rate>=0x38){
-			decayInc=INCREMENTS[RATE_14+(rate & 3)];
-			decayShift=0;
-		}else if(decayRate==0){
-			decayInc=INCREMENTS[RATE_DEFAULT];
-			decayShift=20;
-		}else {
-			decayInc=INCREMENTS[rate & 3];
-			decayShift=((0x3f ^ rate)>>2)-2;
-		}
+		rateLow=ksr & 3;
 		
-		rate=Math.min(releaseRate*4+ksr,63);
-		if(rate>=0x3c) {
-			releaseInc=INCREMENTS[RATE_15];
-			releaseShift=0;
-		}else if(rate>=0x38){
-			releaseInc=INCREMENTS[RATE_14+(rate & 3)];
-			releaseShift=0;
-		}else if(releaseRate==0){
-			releaseInc=INCREMENTS[RATE_DEFAULT];
-			releaseShift=20;
-		}else {
-			releaseInc=INCREMENTS[rate & 3];
-			releaseShift=((0x3f ^ rate)>>2)-2;
-		}
-		
-		rate=Math.min(7*4+ksr,63);
-		percussiveInc=INCREMENTS[rate & 3];
-		percussiveShift=((0x3f ^ rate)>>2)-2;
-
-		rate=Math.min(5*4+ksr,63);
-		sustainInc=INCREMENTS[rate & 3];
-		sustainShift=((0x3f ^ rate)>>2)-2;
-	}
-	
-	public void start() {
-		//Reset envelope parameters
-		if(!skipAttack) 
-			setState(ATTACK);
-		else
-			setState(DECAY);
-		output=0;
+		attackHigh=Math.min(attackRate+(ksr>>2),0xf);
+		decayHigh=Math.min(decayRate+(ksr>>2),0xf);
+		releaseHigh=Math.min(releaseRate+(ksr>>2),0xf);
+		percussiveHigh=Math.min(PERCUSSIVE_RATE+(ksr>>2),0xf);
+		sustainedHigh=Math.min(SUSTAINED_RATE+(ksr>>2),0xf);
+		dampingHigh=Math.min(DAMPING_RATE+(ksr>>2),0xf);
 	}
 	
 	private void setState(int state) {
 		this.state=state;
 		switch(state) {
-		case ATTACK:{
-			currentShift=attackShift;
-			currentInc=attackInc;
+		case DAMPING:{
+			currentHigh=dampingHigh;
 			break;
-		}case DECAY: {
-			currentShift=decayShift;
-			currentInc=decayInc;
+		}case ATTACK:{
+			currentHigh=attackHigh;
 			break;
-		}case SUSTAIN: {
-			if(sustained) {
-				currentShift=20;
-				currentInc=INCREMENTS[5];
-			}else {
-				currentShift=releaseShift;
-				currentInc=releaseInc;
-			}
+		}case DECAY:{
+			currentHigh=decayHigh;
 			break;
-		}case RELEASE: {
-			if(sustainNote) {
-				currentShift=sustainShift;
-				currentInc=sustainInc;
-			}else if(sustained){
-				currentShift=releaseShift;
-				currentInc=releaseInc;
-			}else {
-				currentShift=percussiveShift;
-				currentInc=percussiveInc;
-			}
-			break;
-		}case IDLE: {
-			currentShift=20;
-			currentInc=INCREMENTS[5];
+		}case RELEASE:{
+			currentHigh=releaseHigh;
 			break;
 		}
 		}
@@ -179,10 +94,18 @@ package de.delphi.vrc7j;
 	 */
 	public void setSustainNote(boolean sustain) {
 		this.sustainNote=sustain;
+		if(state==RELEASE) {
+			setState(RELEASE);	//Reset percussive/sustained rates
+		}
 	}
 	
 	public boolean getSustainNote() {
 		return sustainNote;
+	}
+	
+	public void start() {
+		setState(DAMPING);
+		envelopeEnabled=true;
 	}
 	
 	/**
@@ -190,6 +113,12 @@ package de.delphi.vrc7j;
 	 */
 	public void release() {
 		setState(RELEASE);
+		//TODO a bit hacky, change maybe? 
+		if(!sustained)
+			currentHigh=percussiveHigh;
+		if(sustainNote)
+			currentHigh=sustainedHigh;
+		envelopeEnabled=true;
 	}
 	
 	public int getState() {
@@ -197,35 +126,100 @@ package de.delphi.vrc7j;
 	}
 	
 	public int fetchEnvelope() {
-		if((cycleCounter & (1<<currentShift)-1)==0) {
-			int inc=currentInc[(cycleCounter>>currentShift) & 0b111];
-			if(state==ATTACK) {
-				output+=inc*((128-output)/4+1);
-			}else if(state!=IDLE){
-				output+=inc;
+		//Count leading zeros of cycle counter
+		int zeroCount=1;
+		for(int i=1;i<=13;i++) {
+			if((cycleCounter & 1)==1)
+				break;
+			if(((cycleCounter>>i) & 1)!=0 
+					&& ((cycleCounter>>(i-1)) & 1)==0) {
+				zeroCount=i+1;
+				break;
 			}
 		}
+		if(zeroCount>13)
+			zeroCount=0;
 		
-		cycleCounter=(cycleCounter+1) & CYCLE_MASK;
+		//Check whether to update the envelope based on zero count
+		boolean clockEnvelope=false;
+		if((currentHigh+zeroCount) % 0xf==12)
+			clockEnvelope=true;
+		if((currentHigh+zeroCount) % 0xf==13 && (rateLow & 2)!=0)
+			clockEnvelope=true;
+		if((currentHigh+zeroCount) % 0xf==14 && (rateLow & 1)!=0)
+			clockEnvelope=true;
+		if(currentHigh>=0xc)
+			clockEnvelope=false;
+		if(currentHigh==0)
+			clockEnvelope=false;
 		
-		if(state==ATTACK && output>=127) {
-			setState(DECAY);
+		//Get various flags
+		boolean envTable=ENV_TABLE[rateLow][cycleCounter & 3];
+		
+		boolean miniZero=miniCounter==0;
+		boolean miniOdd=(miniCounter & 1)==1;
+		
+		//Setup increment values
+		int inc1=state==ATTACK ? output>>1 : 0x7f;
+		int inc2=state==ATTACK ? output>>2 : 0x7f;
+		if(envelopeEnabled) {
+			inc1&=~2;
+			inc2&=~1;
+		}
+		
+		int inc3=state==ATTACK ? output>>3 : 0x7f;
+		int inc4=state==ATTACK ? output>>4 : 0x7f;
+		
+		//Apply increments based on previous stuff
+		int envInc=0x7f;
+		
+		if(clockEnvelope || !envTable && currentHigh==12)
+			envInc&=inc4;
+		
+		if(!envTable && currentHigh==13 || envTable && currentHigh==12)
+			envInc&=inc3;
+		
+		if(currentHigh==14 && !envTable
+				|| currentHigh==13 && envTable
+				|| currentHigh==13 && !envTable && miniOdd && envelopeEnabled
+				|| currentHigh==12 && !envTable && miniZero && envelopeEnabled
+				|| currentHigh==12 && envTable && miniOdd && envelopeEnabled
+				|| clockEnvelope && miniZero && envelopeEnabled)
+			envInc&=inc2;
+		
+		if(currentHigh==15 || currentHigh==14 && envTable)
+			envInc&=inc1;
+		
+		//Update output
+		output=~((0x7f^output)+envInc+1) & 0x7f;
+		
+		//Update envelope stage
+		if(state==ATTACK && currentHigh==15) {	//Skip attack
 			output=0;
-		}
-		if(state==DECAY && output>=sustainLevel) {
-			setState(SUSTAIN);
-			output=sustainLevel;
-		}
-		if((state==SUSTAIN || state==RELEASE) && output>=127) {
-			setState(IDLE);
-			output=127;
+			setState(DECAY);
 		}
 		
-		if(state==ATTACK) 
-			return 0x7f^output;
-		else if(state!=IDLE)
-			return output;
-		else
-			return 0x7f;
+		if(state==DAMPING && output>=0x7c)
+			setState(ATTACK);
+		
+		if(state==ATTACK && output==0)
+			setState(DECAY);
+		
+		if(state==DECAY && output>>3==sustainLevel) {
+			if(sustained)
+				envelopeEnabled=false;
+			else
+				setState(RELEASE);
+		}
+		
+		if(state==RELEASE && output>=0x7c)
+			envelopeEnabled=false;
+		
+		//Update counters
+		if(miniZero)
+			cycleCounter++;
+		miniCounter=(miniCounter+1) & 3;
+		
+		return output;
 	}
 }

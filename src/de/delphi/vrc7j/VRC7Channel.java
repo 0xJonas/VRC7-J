@@ -30,6 +30,8 @@ public class VRC7Channel implements MidiChannel {
 	
 	private int note,velocity;
 	
+	private boolean audible=false;
+	
 	//Only used for get methods
 	private int pressure=100;
 		
@@ -87,7 +89,7 @@ public class VRC7Channel implements MidiChannel {
 	}
 	
 	public boolean isAudible() {
-		return carEnv.getState()!=Envelope.IDLE;
+		return audible;
 	}
 	
 	/*package*/ int fetchSample() {
@@ -95,7 +97,7 @@ public class VRC7Channel implements MidiChannel {
 		FMAMGenerator fmam=synth.getFMAMGenerator();
 		int vibValue=fmam.getVibrato(fNum, octave);
 		int tremValue=fmam.getTremolo();
-		int kslValue=Math.max(KSL[fNum>>5]+((0b111^octave)<<3),63);
+		int kslValue=Math.max(KSL[fNum>>5]-(((0b111^octave)+1)<<3),0);
 		
 		int modFreq=0;
 		//Apply feedback to modulator
@@ -114,7 +116,8 @@ public class VRC7Channel implements MidiChannel {
 			modVib=vibValue;
 		
 		//get modulator envelope
-		int modAmp=modEnv.fetchEnvelope();
+		int envelopeVal=modEnv.fetchEnvelope();
+		int modAmp=envelopeVal;
 		
 		//get modulator attenuation.
 		modAmp+=index<<1;
@@ -124,14 +127,14 @@ public class VRC7Channel implements MidiChannel {
 			modAmp+=tremValue;
 		
 		//Apply key level scaling to modulator
-		if(modKeyScaleLevel!=0)		//TODO not working right now
+		if(modKeyScaleLevel!=0)
 			modAmp+=(kslValue>>>(0b11^modKeyScaleLevel))<<1;
 		
 		modAmp=Math.min(modAmp, 0x7f);
 		
 		//Get modulator value.
 		int modValue=modulator.fetchSample(modFreq,modVib, modAmp);
-		if(modEnv.getState()==Envelope.IDLE)
+		if(envelopeVal==0x7f)
 			modValue=0;
 		modPrevPrev=modPrev;
 		modPrev=modValue;
@@ -145,7 +148,8 @@ public class VRC7Channel implements MidiChannel {
 			carVib=vibValue;
 		
 		//Get carrier envelope
-		int carAmp=carEnv.fetchEnvelope();
+		envelopeVal=carEnv.fetchEnvelope();
+		int carAmp=envelopeVal;
 		
 		//Apply MIDI note velocity
 		carAmp+=velocity<<3;
@@ -155,15 +159,17 @@ public class VRC7Channel implements MidiChannel {
 			carAmp+=tremValue;
 		
 		//Apply key scaling to carrier
-		if(carKeyScaleLevel!=0)		//TODO not working right now
+		if(carKeyScaleLevel!=0)
 			carAmp+=(kslValue>>>(0b11^carKeyScaleLevel))<<1;
 		
 		carAmp=Math.min(carAmp, 0x7f);
 		
 		//Get carrier value
 		int carValue=carrier.fetchSample(carFreq, carVib, carAmp);
-		if(carEnv.getState()==Envelope.IDLE)
+		audible=envelopeVal<0x7f;
+		if(!audible) {
 			carValue=0;
+		}
 		
 		return carValue<<4;
 	}
